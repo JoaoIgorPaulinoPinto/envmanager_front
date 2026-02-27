@@ -1,5 +1,5 @@
-import LoginView from "./views/login/login-view";
+import LoginModule from "./modules/login/login-module";
 
 export default function Home() {
-  return <LoginView />;
+  return <LoginModule />;
 }

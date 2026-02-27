@@ -1,15 +1,9 @@
-import HomeView from "../../views/home/home-view";
-import { projects } from "../../views/home/projects";
+import HomeModule from "../../modules/home/home-module";
 
 type ProjectPageProps = {
-  params: Promise<{ projectId: string }>;
+  params: { projectId: string };
 };
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
-  const { projectId } = await params;
-  const safeProjectId = projects.some((project) => project.id === projectId)
-    ? projectId
-    : projects[0].id;
-
-  return <HomeView projectId={safeProjectId} />;
+export default function ProjectPage({ params }: ProjectPageProps) {
+  return <HomeModule projectId={params.projectId} />;
 }

@@ -1,29 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState, type FormEvent } from "react";
 import styles from "./login-view.module.css";
 
 export default function LoginView() {
-  const router = useRouter();
-  const [mode, setMode] = useState<"login" | "signup">("login");
-
-  useEffect(() => {
-    const storedTheme = window.localStorage.getItem("theme");
-    const nextTheme = storedTheme === "light" ? "light" : "dark";
-    document.documentElement.setAttribute("data-theme", nextTheme);
-  }, []);
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await fetch("/api/auth/login", { method: "POST" });
-    router.push("/projects");
-  };
-
-  const handleDemoLogin = async () => {
-    await fetch("/api/auth/login", { method: "POST" });
-    router.push("/projects");
-  };
+  const mode: "login" | "signup" = "login";
+  const name = "Camila Santos";
+  const email = "camila@empresa.com";
+  const password = "••••••••";
+  const confirmPassword = "••••••••";
+  const status: "idle" | "loading" | "error" = "idle";
+  const errorMessage = "";
 
   return (
     <main className={styles.page}>
@@ -33,63 +19,88 @@ export default function LoginView() {
           <button
             type="button"
             className={mode === "login" ? styles.modeActive : ""}
-            onClick={() => setMode("login")}
+            disabled
           >
-            Sign in
+            Entrar
           </button>
           <button
             type="button"
             className={mode === "signup" ? styles.modeActive : ""}
-            onClick={() => setMode("signup")}
+            disabled
           >
-            Create account
+            Criar conta
           </button>
         </div>
 
-        <h1>{mode === "login" ? "Access your account" : "Create a new account"}</h1>
+        <h1>{mode === "login" ? "Acesse sua conta" : "Criar nova conta"}</h1>
         <p>
           {mode === "login"
-            ? "Sign in to manage environment variables and secrets for your projects."
-            : "Create your account to start managing your project environments."}
+            ? "Entre para gerenciar variaveis e segredos dos seus projetos."
+            : "Crie seu acesso para comecar a gerenciar seus ambientes."}
         </p>
 
-        <form className={styles.form} onSubmit={handleSubmit}>
+        {status === "error" && errorMessage ? (
+          <div className={styles.errorBanner}>{errorMessage}</div>
+        ) : null}
+
+        <form className={styles.form}>
           {mode === "signup" ? (
             <label className={styles.field}>
-              <span>Name</span>
-              <input type="text" placeholder="Your full name" />
+              <span>Nome</span>
+              <input
+                type="text"
+                placeholder="Seu nome completo"
+                value={name}
+                readOnly
+              />
             </label>
           ) : null}
 
           <label className={styles.field}>
             <span>Email</span>
-            <input type="email" placeholder="you@company.com" />
+            <input
+              type="email"
+              placeholder="voce@empresa.com"
+              value={email}
+              readOnly
+            />
           </label>
 
           <label className={styles.field}>
-            <span>Password</span>
-            <input type="password" placeholder="Enter your password" />
+            <span>Senha</span>
+            <input
+              type="password"
+              placeholder="Digite sua senha"
+              value={password}
+              readOnly
+            />
           </label>
 
           {mode === "signup" ? (
             <label className={styles.field}>
-              <span>Confirm password</span>
-              <input type="password" placeholder="Re-enter your password" />
+              <span>Reescrever senha</span>
+              <input
+                type="password"
+                placeholder="Repita sua senha"
+                value={confirmPassword}
+                readOnly
+              />
             </label>
           ) : null}
 
-          <button type="submit" className={styles.submit}>
-            {mode === "login" ? "Sign in" : "Create account"}
+          <button
+            type="submit"
+            className={styles.submit}
+            disabled
+          >
+            {status === "loading"
+              ? "Entrando..."
+              : mode === "login"
+                ? "Entrar"
+                : "Criar conta"}
           </button>
         </form>
 
-        <button
-          type="button"
-          className={styles.secondaryButton}
-          onClick={handleDemoLogin}
-        >
-          Continue without authentication (demo)
-        </button>
       </section>
     </main>
   );

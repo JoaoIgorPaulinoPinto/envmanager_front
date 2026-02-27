@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
-import { projects } from "../views/home/projects";
+import HomeModule from "../modules/home/home-module";
 
 export default function ProjectsPage() {
-  redirect(`/projects/${projects[0].id}`);
+  return <HomeModule />;
 }
