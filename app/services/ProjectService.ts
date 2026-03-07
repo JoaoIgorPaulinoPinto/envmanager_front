@@ -49,9 +49,14 @@ export default class ProjectService {
     }
   }
 
-  async getDetails(projectId: string): Promise<GetProjectDetailsResponse> {
+  async getDetails(
+    projectId: string,
+    password: string | null = null,
+  ): Promise<GetProjectDetailsResponse> {
     try {
-      const response = await api.post(`/project/${projectId}/details`);
+      const response = await api.post(`/project/${projectId}/details`, {
+        password,
+      });
       return response.data as GetProjectDetailsResponse;
     } catch (error: unknown) {
       throw new Error(getApiErrorMessage(error));

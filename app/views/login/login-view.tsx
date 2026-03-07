@@ -1,32 +1,43 @@
 "use client";
 
 import styles from "./login-view.module.css";
+import { useLoginLogic } from "./login.logic";
 
 export default function LoginView() {
-  const mode: "login" | "signup" = "login";
-  const name = "Camila Santos";
-  const email = "camila@empresa.com";
-  const password = "••••••••";
-  const confirmPassword = "••••••••";
-  const status: "idle" | "loading" | "error" = "idle";
-  const errorMessage = "";
+  const {
+    setMode,
+    setName,
+    setEmail,
+    setPassword,
+    setConfirmPassword,
+    handleSubmit,
+    mode,
+    name,
+    email,
+    password,
+    status,
+    errorMessage,
+    confirmPassword,
+  } = useLoginLogic();
 
   return (
     <main className={styles.page}>
       <section className={styles.card}>
         <div className={styles.brand}>EnvManager</div>
+
         <div className={styles.modeSwitch}>
           <button
+            onClick={() => setMode("login")}
             type="button"
             className={mode === "login" ? styles.modeActive : ""}
-            disabled
+            // Removed 'disabled' so users can actually click it
           >
             Entrar
           </button>
           <button
+            onClick={() => setMode("signup")}
             type="button"
             className={mode === "signup" ? styles.modeActive : ""}
-            disabled
           >
             Criar conta
           </button>
@@ -35,26 +46,32 @@ export default function LoginView() {
         <h1>{mode === "login" ? "Acesse sua conta" : "Criar nova conta"}</h1>
         <p>
           {mode === "login"
-            ? "Entre para gerenciar variaveis e segredos dos seus projetos."
-            : "Crie seu acesso para comecar a gerenciar seus ambientes."}
+            ? "Entre para gerenciar variáveis e segredos dos seus projetos."
+            : "Crie seu acesso para começar a gerenciar seus ambientes."}
         </p>
 
-        {status === "error" && errorMessage ? (
+        {status === "error" && errorMessage && (
           <div className={styles.errorBanner}>{errorMessage}</div>
-        ) : null}
+        )}
 
-        <form className={styles.form}>
-          {mode === "signup" ? (
+        <form
+          className={styles.form}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(); // Call your logic's submit function here
+          }}
+        >
+          {mode === "signup" && (
             <label className={styles.field}>
               <span>Nome</span>
               <input
                 type="text"
                 placeholder="Seu nome completo"
                 value={name}
-                readOnly
+                onChange={(e) => setName(e.target.value)}
               />
             </label>
-          ) : null}
+          )}
 
           <label className={styles.field}>
             <span>Email</span>
@@ -62,7 +79,7 @@ export default function LoginView() {
               type="email"
               placeholder="voce@empresa.com"
               value={email}
-              readOnly
+              onChange={(e) => setEmail(e.target.value)}
             />
           </label>
 
@@ -72,35 +89,34 @@ export default function LoginView() {
               type="password"
               placeholder="Digite sua senha"
               value={password}
-              readOnly
+              onChange={(e) => setPassword(e.target.value)}
             />
           </label>
 
-          {mode === "signup" ? (
+          {mode === "signup" && (
             <label className={styles.field}>
               <span>Reescrever senha</span>
               <input
                 type="password"
                 placeholder="Repita sua senha"
                 value={confirmPassword}
-                readOnly
+                onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </label>
-          ) : null}
+          )}
 
           <button
             type="submit"
             className={styles.submit}
-            disabled
+            disabled={status === "loading"}
           >
             {status === "loading"
-              ? "Entrando..."
+              ? "Processando..."
               : mode === "login"
                 ? "Entrar"
                 : "Criar conta"}
           </button>
         </form>
-
       </section>
     </main>
   );

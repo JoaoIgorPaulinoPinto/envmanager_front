@@ -2,7 +2,7 @@
 import GetProjectsResponse from "@/app/models/getProjectsResponse";
 import GetUserResponse from "@/app/models/getUserResponse";
 import { useState } from "react";
-import ProjectsService from "../../services/ProjectService";
+import ProjectsService, { ProjectCreate } from "../../services/ProjectService";
 import UserService from "../../services/UserService";
 
 const userService = new UserService();
@@ -49,9 +49,17 @@ function SideBarLogic() {
     document.documentElement.setAttribute("data-theme", newTheme);
     setTheme(newTheme);
   };
+
+  const createProject = async (data: ProjectCreate) => {
+    const project = await projectsService.create(data);
+    await getUserProjects();
+    return project;
+  };
+
   return {
     getUserProjects,
     getUserInfo,
+    createProject,
     toggleTheme,
     user,
     projects,

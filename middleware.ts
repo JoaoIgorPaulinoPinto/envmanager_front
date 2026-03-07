@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const isAuthenticated = request.cookies.get("env_auth")?.value === "1";
+  const isAuthenticated = request.cookies.get("auth_token")?.value != "";
   if (isAuthenticated) {
     return NextResponse.next();
   }
