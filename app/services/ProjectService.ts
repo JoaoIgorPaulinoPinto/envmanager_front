@@ -42,7 +42,6 @@ export default class ProjectService {
   async listAll(): Promise<GetProjectsResponse[]> {
     try {
       const response = await api.get("/project");
-      console.log("Projects list response:", response.data);
       return response.data as GetProjectsResponse[];
     } catch (error: unknown) {
       throw new Error(getApiErrorMessage(error));
@@ -65,7 +64,7 @@ export default class ProjectService {
 
   async update(data: ProjectUpdate) {
     try {
-      const response = await api.put("/projects/update", data);
+      const response = await api.put("/project/update", data);
       return response.data as Record<string, unknown>;
     } catch (error: unknown) {
       throw new Error(getApiErrorMessage(error));
@@ -74,7 +73,7 @@ export default class ProjectService {
 
   async promoteAdmin(data: ProjectAdminUpdate) {
     try {
-      const response = await api.put("/projects/admin", data);
+      const response = await api.put("/project/admin", data);
       return response.data as Record<string, unknown>;
     } catch (error: unknown) {
       throw new Error(getApiErrorMessage(error));
@@ -83,7 +82,7 @@ export default class ProjectService {
 
   async syncVariables(projectId: string, variables: ProjectVariable[]) {
     try {
-      const response = await api.put("/projects/variables", {
+      const response = await api.put("/project/variables", {
         project_id: projectId,
         variables,
       });

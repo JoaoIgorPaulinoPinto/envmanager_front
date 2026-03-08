@@ -44,8 +44,7 @@
 }
 
 .addProjectButton {
-  width: 26px;
-  height: 26px;
+  padding: 10px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--panel);

@@ -53,7 +53,7 @@ export async function refreshAuthTokens(
   const response = await fetchBackend("/auth/refresh", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(refreshToken),
+    body: JSON.stringify({ refreshToken }),
   });
 
   if (!response.ok) {
@@ -61,14 +61,26 @@ export async function refreshAuthTokens(
   }
 
   const data = (await response.json()) as Record<string, unknown>;
-  if (
-    typeof data.accessToken !== "string" ||
-    typeof data.refreshToken !== "string"
-  ) {
+  const accessToken =
+    typeof data.accessToken === "string"
+      ? data.accessToken
+      : typeof data.access_token === "string"
+        ? data.access_token
+        : typeof data.token === "string"
+          ? data.token
+          : null;
+  const nextRefreshToken =
+    typeof data.refreshToken === "string"
+      ? data.refreshToken
+      : typeof data.refresh_token === "string"
+        ? data.refresh_token
+        : null;
+
+  if (!accessToken || !nextRefreshToken) {
     return null;
   }
 
-  return { accessToken: data.accessToken, refreshToken: data.refreshToken };
+  return { accessToken, refreshToken: nextRefreshToken };
 }
 
 export async function fetchBackend(path: string, init: RequestInit) {

@@ -26,8 +26,8 @@ export async function refreshSession(): Promise<string | null> {
   const response = await fetch(`${getApiBaseUrl()}/auth/refresh`, {
     method: "POST",
     credentials: "include",
-    headers: { "Content-Type": "text/plain" },
-    body: refreshToken,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refreshToken }),
   });
 
   if (!response.ok) {

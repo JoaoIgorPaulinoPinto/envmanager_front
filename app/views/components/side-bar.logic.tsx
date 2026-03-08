@@ -35,8 +35,6 @@ function SideBarLogic() {
         setProjects(projectsInfo);
 
         setStatus("idle");
-        console.log("Projects fetched successfully:", projectsInfo);
-        console.log("Projects state updated:", projects);
       }
     } catch {
       setStatus("error");

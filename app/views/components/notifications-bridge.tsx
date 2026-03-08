@@ -8,6 +8,18 @@ export type InvitationNotification = {
   project: string;
   inviter_user: string;
   message: string;
+  token?: string;
+  invitation_token?: string;
+  invite_token?: string;
+  invitationToken?: string;
+  inviteToken?: string;
+  data?: {
+    token?: string;
+    invitation_token?: string;
+    invite_token?: string;
+    invitationToken?: string;
+    inviteToken?: string;
+  };
 };
 
 type NotificationsBridgeProps = {
@@ -35,11 +47,10 @@ export default function NotificationsBridge({
         withCredentials: true,
       })
       .withAutomaticReconnect([0, 1000, 3000, 5000])
-      .configureLogging(signalR.LogLevel.Trace)
+      .configureLogging(signalR.LogLevel.Error)
       .build();
 
     connection.on("ReceiveInvitation", (payload: InvitationNotification) => {
-      console.info(`${logPrefix} evento ReceiveInvitation`, payload);
       onInvitation(payload);
     });
 
@@ -48,18 +59,12 @@ export default function NotificationsBridge({
       await refreshSession();
     });
 
-    connection.onreconnected((connectionId) => {
-      console.info(`${logPrefix} reconectado`, { connectionId });
-    });
-
     connection.onclose(async (error) => {
       if (cancelled) return;
       console.warn(`${logPrefix} conexao fechada`, error);
       try {
         await refreshSession();
-        console.info(`${logPrefix} tentando iniciar apos fechamento`);
         await connection.start();
-        console.info(`${logPrefix} conexao iniciada apos fechamento`);
       } catch {
         console.error(`${logPrefix} falha ao iniciar apos fechamento`);
         // no-op: automatic reconnect will keep trying
@@ -68,10 +73,8 @@ export default function NotificationsBridge({
 
     const start = async () => {
       try {
-        console.info(`${logPrefix} iniciando conexao...`);
         await connection.start();
         connectionRef.current = connection;
-        console.info(`${logPrefix} conexao iniciada`);
       } catch {
         console.warn(`${logPrefix} falha no start inicial; tentando refresh de sessao`);
         const refreshed = await refreshSession();
@@ -79,7 +82,6 @@ export default function NotificationsBridge({
           try {
             await connection.start();
             connectionRef.current = connection;
-            console.info(`${logPrefix} conexao iniciada apos refresh de sessao`);
           } catch {
             console.error(`${logPrefix} falha ao iniciar mesmo apos refresh`);
             // no-op: automatic reconnect will keep trying
@@ -95,7 +97,6 @@ export default function NotificationsBridge({
       const current = connectionRef.current;
       connectionRef.current = null;
       if (current) {
-        console.info(`${logPrefix} encerrando conexao no unmount`);
         void current.stop();
       }
     };

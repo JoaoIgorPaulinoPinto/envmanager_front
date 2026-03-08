@@ -1,6 +1,7 @@
 "use client";
 
-import { Download, Pencil, UserPlus } from "lucide-react";
+import { Download, Pencil, Plus, UserPlus } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import SideBar from "../components/side-bar";
 import styles from "./home-view.module.css";
@@ -11,6 +12,7 @@ type HomeViewProps = {
 };
 
 export default function HomeView({ projectId }: HomeViewProps) {
+  const router = useRouter();
   const {
     addProjectVariable,
     clearProject,
@@ -19,6 +21,8 @@ export default function HomeView({ projectId }: HomeViewProps) {
     project,
     selectedProject,
     sendProjectInvite,
+    updateProjectInfo,
+    updateProjectVariable,
     status,
     errorMessage,
   } = HomeLogic();
@@ -36,6 +40,19 @@ export default function HomeView({ projectId }: HomeViewProps) {
   const [inviteError, setInviteError] = useState("");
   const [isSendingInvite, setIsSendingInvite] = useState(false);
   const [inviteMessage, setInviteMessage] = useState("");
+  const [editingProjectName, setEditingProjectName] = useState(false);
+  const [editingProjectDescription, setEditingProjectDescription] = useState(false);
+  const [projectNameDraft, setProjectNameDraft] = useState("");
+  const [projectDescriptionDraft, setProjectDescriptionDraft] = useState("");
+  const [isSavingProjectInfo, setIsSavingProjectInfo] = useState(false);
+  const [projectInfoError, setProjectInfoError] = useState("");
+  const [editingVariable, setEditingVariable] = useState<{
+    id: string;
+    field: "variable" | "value";
+  } | null>(null);
+  const [variableDraft, setVariableDraft] = useState("");
+  const [isSavingVariableEdit, setIsSavingVariableEdit] = useState(false);
+  const [variableEditError, setVariableEditError] = useState("");
 
   const noticeMessage = inviteMessage;
 
@@ -74,6 +91,18 @@ export default function HomeView({ projectId }: HomeViewProps) {
 
   useEffect(() => {
     document.title = `EnvManager - ${project ? project.name : "Loading..."}`;
+  }, [project]);
+
+  useEffect(() => {
+    if (!project) return;
+    setProjectNameDraft(project.name);
+    setProjectDescriptionDraft(project.description ?? "");
+    setEditingProjectName(false);
+    setEditingProjectDescription(false);
+    setProjectInfoError("");
+    setEditingVariable(null);
+    setVariableDraft("");
+    setVariableEditError("");
   }, [project]);
 
   const handlePasswordSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -151,6 +180,84 @@ export default function HomeView({ projectId }: HomeViewProps) {
     }
   };
 
+  const handleSaveProjectName = async () => {
+    if (!projectId || !project) return;
+    const nextName = projectNameDraft.trim();
+    if (!nextName) {
+      setProjectInfoError("Project name is required.");
+      return;
+    }
+    setProjectInfoError("");
+    setIsSavingProjectInfo(true);
+    try {
+      await updateProjectInfo(projectId, nextName, projectDescriptionDraft.trim());
+      setEditingProjectName(false);
+    } catch (error: unknown) {
+      setProjectInfoError(
+        error instanceof Error ? error.message : "Failed to update project name.",
+      );
+    } finally {
+      setIsSavingProjectInfo(false);
+    }
+  };
+
+  const handleSaveProjectDescription = async () => {
+    if (!projectId || !project) return;
+    const nextDescription = projectDescriptionDraft.trim();
+    setProjectInfoError("");
+    setIsSavingProjectInfo(true);
+    try {
+      await updateProjectInfo(projectId, projectNameDraft.trim(), nextDescription);
+      setEditingProjectDescription(false);
+    } catch (error: unknown) {
+      setProjectInfoError(
+        error instanceof Error
+          ? error.message
+          : "Failed to update project description.",
+      );
+    } finally {
+      setIsSavingProjectInfo(false);
+    }
+  };
+
+  const startVariableEdit = (
+    variableId: string,
+    field: "variable" | "value",
+    value: string,
+  ) => {
+    setVariableEditError("");
+    setEditingVariable({ id: variableId, field });
+    setVariableDraft(value);
+  };
+
+  const handleSaveVariableEdit = async () => {
+    if (!projectId || !editingVariable) return;
+    const nextValue = variableDraft.trim();
+    if (!nextValue) {
+      setVariableEditError("Value cannot be empty.");
+      return;
+    }
+
+    setVariableEditError("");
+    setIsSavingVariableEdit(true);
+    try {
+      await updateProjectVariable(
+        projectId,
+        editingVariable.id,
+        editingVariable.field,
+        nextValue,
+      );
+      setEditingVariable(null);
+      setVariableDraft("");
+    } catch (error: unknown) {
+      setVariableEditError(
+        error instanceof Error ? error.message : "Failed to update variable.",
+      );
+    } finally {
+      setIsSavingVariableEdit(false);
+    }
+  };
+
   return (
     <div className={styles.page}>
       <SideBar />
@@ -172,17 +279,102 @@ export default function HomeView({ projectId }: HomeViewProps) {
             <div>
               <div className={styles.eyebrow}>Selected project</div>
               <div className={styles.titleRow}>
-                <h1>{project.name}</h1>
-                <button type="button" className={styles.inlineEdit} disabled>
-                  <Pencil size={16} />
-                </button>
+                {editingProjectName ? (
+                  <>
+                    <input
+                      className={styles.projectNameInput}
+                      value={projectNameDraft}
+                      onChange={(event) => setProjectNameDraft(event.target.value)}
+                      disabled={isSavingProjectInfo}
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      className={styles.saveEdit}
+                      onClick={handleSaveProjectName}
+                      disabled={isSavingProjectInfo}
+                    >
+                      {isSavingProjectInfo ? "Saving..." : "Save"}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.inlineEdit}
+                      onClick={() => {
+                        setProjectNameDraft(project.name);
+                        setEditingProjectName(false);
+                      }}
+                      disabled={isSavingProjectInfo}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <h1>{project.name}</h1>
+                    <button
+                      type="button"
+                      className={styles.inlineEdit}
+                      onClick={() => {
+                        setProjectInfoError("");
+                        setEditingProjectName(true);
+                      }}
+                    >
+                      <Pencil size={16} />
+                    </button>
+                  </>
+                )}
               </div>
               <div className={styles.descRow}>
-                <p>{project.description}</p>
-                <button type="button" className={styles.inlineEdit} disabled>
-                  <Pencil size={16} />
-                </button>
+                {editingProjectDescription ? (
+                  <>
+                    <input
+                      className={styles.inlineTextInput}
+                      value={projectDescriptionDraft}
+                      onChange={(event) =>
+                        setProjectDescriptionDraft(event.target.value)
+                      }
+                      disabled={isSavingProjectInfo}
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      className={styles.saveEdit}
+                      onClick={handleSaveProjectDescription}
+                      disabled={isSavingProjectInfo}
+                    >
+                      {isSavingProjectInfo ? "Saving..." : "Save"}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.inlineEdit}
+                      onClick={() => {
+                        setProjectDescriptionDraft(project.description ?? "");
+                        setEditingProjectDescription(false);
+                      }}
+                      disabled={isSavingProjectInfo}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p>{project.description}</p>
+                    <button
+                      type="button"
+                      className={styles.inlineEdit}
+                      onClick={() => {
+                        setProjectInfoError("");
+                        setEditingProjectDescription(true);
+                      }}
+                    >
+                      <Pencil size={16} />
+                    </button>
+                  </>
+                )}
               </div>
+              {projectInfoError && (
+                <div className={styles.errorBanner}>{projectInfoError}</div>
+              )}
             </div>
 
             <div className={styles.actions}>
@@ -235,7 +427,7 @@ export default function HomeView({ projectId }: HomeViewProps) {
                   setVariableError("");
                 }}
               >
-                +
+                <Plus size={23} />
               </button>
             </div>
             {showAddVariableForm && (
@@ -265,6 +457,9 @@ export default function HomeView({ projectId }: HomeViewProps) {
             {variableError && (
               <div className={styles.errorBanner}>{variableError}</div>
             )}
+            {variableEditError && (
+              <div className={styles.errorBanner}>{variableEditError}</div>
+            )}
 
             <table className={styles.table}>
               <thead>
@@ -282,10 +477,49 @@ export default function HomeView({ projectId }: HomeViewProps) {
                         <button
                           type="button"
                           className={styles.inlineEdit}
-                          disabled
+                          onClick={() =>
+                            startVariableEdit(
+                              variable.id,
+                              "variable",
+                              variable.variable,
+                            )
+                          }
                         >
                           <Pencil size={14} />
                         </button>
+                        {editingVariable?.id === variable.id &&
+                          editingVariable.field === "variable" && (
+                            <>
+                              <input
+                                className={styles.tableTextInput}
+                                value={variableDraft}
+                                onChange={(event) =>
+                                  setVariableDraft(event.target.value)
+                                }
+                                disabled={isSavingVariableEdit}
+                                autoFocus
+                              />
+                              <button
+                                type="button"
+                                className={styles.saveEdit}
+                                onClick={handleSaveVariableEdit}
+                                disabled={isSavingVariableEdit}
+                              >
+                                {isSavingVariableEdit ? "Saving..." : "Save"}
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.inlineEdit}
+                                onClick={() => {
+                                  setEditingVariable(null);
+                                  setVariableDraft("");
+                                }}
+                                disabled={isSavingVariableEdit}
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          )}
                       </div>
                     </td>
                     <td>
@@ -296,10 +530,45 @@ export default function HomeView({ projectId }: HomeViewProps) {
                         <button
                           type="button"
                           className={styles.inlineEdit}
-                          disabled
+                          onClick={() =>
+                            startVariableEdit(variable.id, "value", variable.value)
+                          }
                         >
                           <Pencil size={14} />
                         </button>
+                        {editingVariable?.id === variable.id &&
+                          editingVariable.field === "value" && (
+                            <>
+                              <input
+                                className={styles.tableTextInput}
+                                value={variableDraft}
+                                onChange={(event) =>
+                                  setVariableDraft(event.target.value)
+                                }
+                                disabled={isSavingVariableEdit}
+                                autoFocus
+                              />
+                              <button
+                                type="button"
+                                className={styles.saveEdit}
+                                onClick={handleSaveVariableEdit}
+                                disabled={isSavingVariableEdit}
+                              >
+                                {isSavingVariableEdit ? "Saving..." : "Save"}
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.inlineEdit}
+                                onClick={() => {
+                                  setEditingVariable(null);
+                                  setVariableDraft("");
+                                }}
+                                disabled={isSavingVariableEdit}
+                              >
+                                Cancel
+                              </button>
+                            </>
+                          )}
                       </div>
                     </td>
                   </tr>
@@ -333,6 +602,19 @@ export default function HomeView({ projectId }: HomeViewProps) {
               </div>
             )}
             <div className={styles.modalActions}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowPasswordModal(false);
+                  setProjectPassword("");
+                  setPasswordError("");
+                  clearProject();
+                  router.push("/projects");
+                }}
+                disabled={isSubmittingPassword}
+              >
+                Cancel
+              </button>
               <button type="submit" disabled={isSubmittingPassword}>
                 {isSubmittingPassword ? "Unlocking..." : "Unlock"}
               </button>

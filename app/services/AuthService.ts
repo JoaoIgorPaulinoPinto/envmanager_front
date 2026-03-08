@@ -14,7 +14,7 @@ export interface LoginRequest {
 
 export type AuthResponse =
   | { message: string }
-  | { auth_token: string; refresh_token: string };
+  | { token?: string; accessToken?: string; refreshToken?: string; refresh_token?: string };
 
 const readToken = (payload: unknown, keys: string[]): string | null => {
   if (!payload || typeof payload !== "object") return null;
@@ -62,7 +62,6 @@ export default class AuthService {
       if (refreshToken) {
         Cookies.set("refresh_token", refreshToken);
       }
-      console.log("Login successful, token stored:", response.data);
       return response.data as AuthResponse;
     } catch (error: unknown) {
       throw new Error(getApiErrorMessage(error));
@@ -71,18 +70,17 @@ export default class AuthService {
 
   async refresh(refreshToken: string): Promise<AuthResponse> {
     try {
-      const response = await api.post("/auth/refresh", refreshToken, {
-        headers: { "Content-Type": "text/plain" },
-      });
+      const response = await api.post("/auth/refresh", { refreshToken });
       return response.data as AuthResponse;
     } catch (error: unknown) {
       throw new Error(getApiErrorMessage(error));
     }
   }
 
-  async logout(): Promise<{ ok: boolean }> {
+  async logout(refreshToken?: string): Promise<{ ok: boolean }> {
     try {
-      const response = await api.post("/auth/logout");
+      const payload = refreshToken ? { refreshToken } : {};
+      const response = await api.post("/auth/logout", payload);
       return response.data as { ok: boolean };
     } catch (error: unknown) {
       throw new Error(getApiErrorMessage(error));

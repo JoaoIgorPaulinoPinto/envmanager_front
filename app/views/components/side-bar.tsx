@@ -1,6 +1,6 @@
 "use client";
 
-import { Lock, Moon, Sun } from "lucide-react";
+import { Lock, Moon, Plus, Sun } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import SideBarLogic from "./side-bar.logic";
@@ -59,7 +59,7 @@ export default function SideBar() {
       setProjectPassword("");
     } catch (error: unknown) {
       setCreateError(
-        error instanceof Error ? error.message : "Error creating project"
+        error instanceof Error ? error.message : "Error creating project",
       );
     } finally {
       setIsCreating(false);
@@ -84,12 +84,15 @@ export default function SideBar() {
             setCreateError("");
           }}
         >
-          +
+          <Plus size={23} />
         </button>
       </div>
 
       {showCreateForm && (
-        <form className={styles.createProjectForm} onSubmit={handleCreateProject}>
+        <form
+          className={styles.createProjectForm}
+          onSubmit={handleCreateProject}
+        >
           <input
             type="text"
             placeholder="Project name"
@@ -112,7 +115,9 @@ export default function SideBar() {
             onChange={(event) => setProjectPassword(event.target.value)}
             disabled={isCreating}
           />
-          {createError && <div className={styles.errorBanner}>{createError}</div>}
+          {createError && (
+            <div className={styles.errorBanner}>{createError}</div>
+          )}
           <div className={styles.createProjectActions}>
             <button type="submit" disabled={isCreating}>
               {isCreating ? "Creating..." : "Create"}
@@ -148,7 +153,9 @@ export default function SideBar() {
             <button
               key={project.id}
               type="button"
-              aria-current={selectedProjectId === project.id ? "page" : undefined}
+              aria-current={
+                selectedProjectId === project.id ? "page" : undefined
+              }
               className={`${styles.projectCard} ${
                 selectedProjectId === project.id ? styles.projectActive : ""
               }`}

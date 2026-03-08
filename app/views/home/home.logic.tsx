@@ -108,6 +108,79 @@ function HomeLogic() {
     [project],
   );
 
+  const syncProjectVariables = useCallback(
+    async (
+      projectId: string,
+      variables: { id?: string | null; variable: string; value: string }[],
+    ) => {
+      await projectService.syncVariables(projectId, variables);
+      setProject((currentProject) => {
+        if (!currentProject) return currentProject;
+        return {
+          ...currentProject,
+          variables: variables.map((item) => ({
+            id: item.id ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+            variable: item.variable,
+            value: item.value,
+          })),
+        };
+      });
+    },
+    [],
+  );
+
+  const updateProjectInfo = useCallback(
+    async (projectId: string, projectName: string, projectDescription: string) => {
+      await projectService.update({
+        project_id: projectId,
+        project_name: projectName,
+        project_description: projectDescription,
+      });
+
+      setProject((currentProject) => {
+        if (!currentProject) return currentProject;
+        return {
+          ...currentProject,
+          name: projectName,
+          description: projectDescription,
+        };
+      });
+    },
+    [],
+  );
+
+  const updateProjectVariable = useCallback(
+    async (
+      projectId: string,
+      variableId: string,
+      field: "variable" | "value",
+      nextValue: string,
+    ) => {
+      if (!project) {
+        throw new Error("Project not loaded");
+      }
+
+      const normalized = nextValue.trim();
+      if (!normalized) {
+        throw new Error("Value cannot be empty.");
+      }
+
+      const nextVariables = project.variables.map((item) =>
+        item.id === variableId ? { ...item, [field]: normalized } : item,
+      );
+
+      await syncProjectVariables(
+        projectId,
+        nextVariables.map((item) => ({
+          id: item.id,
+          variable: item.variable,
+          value: item.value,
+        })),
+      );
+    },
+    [project, syncProjectVariables],
+  );
+
   const sendProjectInvite = useCallback(
     async (projectId: string, invitedUserEmail: string) => {
       await inviteService.sendInvite({
@@ -121,6 +194,8 @@ function HomeLogic() {
   return {
     clearProject,
     addProjectVariable,
+    updateProjectInfo,
+    updateProjectVariable,
     sendProjectInvite,
     getProjectData,
     getSelectedProjectData,

@@ -2,7 +2,13 @@ import { NextResponse } from "next/server";
 import { refreshAuthTokens, setAuthCookies } from "../../_lib/backend";
 
 export async function POST(request: Request) {
-  const refreshToken = (await request.text()).replace(/"/g, "").trim();
+  const payload = (await request.json()) as { refreshToken?: string };
+  const refreshToken = (payload.refreshToken ?? "").trim();
+
+  if (!refreshToken) {
+    return NextResponse.json({ ok: false }, { status: 400 });
+  }
+
   const tokens = await refreshAuthTokens(refreshToken);
 
   if (!tokens) {
