@@ -355,3 +355,19 @@
 .themeSliderLight .themeKnob {
   left: 33px;
 }
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 100%;
+    flex: 0 0 auto;
+    min-height: auto;
+    position: sticky;
+    top: 0;
+    background: color-mix(in srgb, var(--panel) 82%, transparent 18%);
+    backdrop-filter: blur(8px);
+    z-index: 10;
+  }
+
+  .projectList {
+    max-height: 320px;
+  }
+}

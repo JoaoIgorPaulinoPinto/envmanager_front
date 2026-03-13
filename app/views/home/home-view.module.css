@@ -328,7 +328,7 @@
 }
 
 .content {
-  padding: 36px 40px;
+  padding: clamp(20px,4vw,40px);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -612,23 +612,29 @@
 }
 
 .errorBanner {
-  border: 1px solid rgba(248, 113, 113, 0.4);
-  background: rgba(248, 113, 113, 0.12);
-  color: #fecaca;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: rgba(127, 29, 29, 0.2);
+  color: #fecdd3;
   padding: 10px 12px;
   border-radius: 12px;
   font-size: 13px;
-  margin-bottom: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  line-height: 1.4;
 }
 
 .noticeBanner {
   border: 1px solid rgba(34, 197, 94, 0.35);
-  background: rgba(34, 197, 94, 0.12);
+  background: rgba(22, 101, 52, 0.26);
   color: #bbf7d0;
   padding: 10px 12px;
   border-radius: 12px;
   font-size: 13px;
-  margin-bottom: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  line-height: 1.4;
 }
 
 .tableHeader {
@@ -1019,4 +1025,19 @@
   .addVariableForm {
     grid-template-columns: 1fr;
   }
+}
+
+
+.tableCard { overflow-x: auto; }
+.table { min-width: 640px; }
+@media (max-width: 960px) {
+  .contentHeader {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+@media (max-width: 720px) {
+  .table { min-width: 520px; }
+  .actions { width: 100%; justify-content: flex-start; }
+  .actionGroup { align-items: flex-start; text-align: left; }
 }

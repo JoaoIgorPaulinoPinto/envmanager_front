@@ -263,15 +263,19 @@ export default function HomeView({ projectId }: HomeViewProps) {
       <SideBar />
       <main className={styles.content}>
         {!projectId && (
-          <div className={styles.noticeBanner}>
+          <div className={styles.noticeBanner} role="status" aria-live="polite">
             Select a project in the sidebar to load its details.
           </div>
         )}
         {status === "loading" && !showPasswordModal && (
-          <div className={styles.noticeBanner}>Loading project...</div>
+          <div className={styles.noticeBanner} role="status" aria-live="polite">
+            Loading project...
+          </div>
         )}
         {status === "error" && errorMessage && !showPasswordModal && (
-          <div className={styles.errorBanner}>{errorMessage}</div>
+          <div className={styles.errorBanner} role="alert" aria-live="assertive">
+            {errorMessage}
+          </div>
         )}
 
         {project && (
@@ -412,7 +416,9 @@ export default function HomeView({ projectId }: HomeViewProps) {
         )}
 
         {noticeMessage && (
-          <div className={styles.noticeBanner}>{noticeMessage}</div>
+          <div className={styles.noticeBanner} role="status" aria-live="polite">
+            {noticeMessage}
+          </div>
         )}
 
         {project && (
@@ -455,10 +461,14 @@ export default function HomeView({ projectId }: HomeViewProps) {
               </form>
             )}
             {variableError && (
-              <div className={styles.errorBanner}>{variableError}</div>
+              <div className={styles.errorBanner} role="alert" aria-live="assertive">
+                {variableError}
+              </div>
             )}
             {variableEditError && (
-              <div className={styles.errorBanner}>{variableEditError}</div>
+              <div className={styles.errorBanner} role="alert" aria-live="assertive">
+                {variableEditError}
+              </div>
             )}
 
             <table className={styles.table}>
@@ -597,7 +607,7 @@ export default function HomeView({ projectId }: HomeViewProps) {
               autoFocus
             />
             {(passwordError || errorMessage) && (
-              <div className={styles.errorBanner}>
+              <div className={styles.errorBanner} role="alert" aria-live="assertive">
                 {passwordError || errorMessage}
               </div>
             )}
@@ -637,7 +647,9 @@ export default function HomeView({ projectId }: HomeViewProps) {
               autoFocus
             />
             {inviteError && (
-              <div className={styles.errorBanner}>{inviteError}</div>
+              <div className={styles.errorBanner} role="alert" aria-live="assertive">
+                {inviteError}
+              </div>
             )}
             <div className={styles.modalActions}>
               <button

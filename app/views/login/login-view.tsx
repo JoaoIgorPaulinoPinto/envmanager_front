@@ -43,7 +43,7 @@ export default function LoginView() {
           </button>
         </div>
 
-        <h1>{mode === "login" ? "Acesse sua conta" : "Criar nova conta"}</h1>
+        <h1>{mode === "login" ? "Acesse sua conta" : "Crie uma conta"}</h1>
         <p>
           {mode === "login"
             ? "Entre para gerenciar variáveis e segredos dos seus projetos."
@@ -51,7 +51,7 @@ export default function LoginView() {
         </p>
 
         {status === "error" && errorMessage && (
-          <div className={styles.errorBanner}>{errorMessage}</div>
+          <div className={styles.errorBanner} role="alert" aria-live="assertive">{errorMessage}</div>
         )}
 
         <form
