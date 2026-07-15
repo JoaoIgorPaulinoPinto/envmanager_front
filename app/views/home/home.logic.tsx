@@ -149,6 +149,7 @@ function HomeLogic() {
     [],
   );
 
+
   const updateProjectVariable = useCallback(
     async (
       projectId: string,
@@ -159,27 +160,28 @@ function HomeLogic() {
       if (!project) {
         throw new Error("Project not loaded");
       }
-
-      const normalized = nextValue.trim();
-      if (!normalized) {
-        throw new Error("Value cannot be empty.");
-      }
-
-      const nextVariables = project.variables.map((item) =>
-        item.id === variableId ? { ...item, [field]: normalized } : item,
-      );
+        const nextVariables = project.variables.map((item) =>
+          item.id === variableId ? { ...item, [field]: nextValue  } : item,
+        );
 
       await syncProjectVariables(
         projectId,
         nextVariables.map((item) => ({
           id: item.id,
-          variable: item.variable,
-          value: item.value,
+          variable: item.variable != "" ? item.variable : "",
+          value: item.value != "" ? item.value : "",
         })),
       );
     },
     [project, syncProjectVariables],
   );
+
+  // ***
+  //
+  // Criar funcao que remove a variavel clicando na lixeira. ( Sem ter que apagar o valor da variavel para remove-la)
+  // Criar uma função que envie um convite para um usuário para participar de um projeto. A função deve receber o ID do projeto e o e-mail do usuário convidado, e utilizar o serviço de convite para enviar o convite.
+  //
+  // ****
 
   const sendProjectInvite = useCallback(
     async (projectId: string, invitedUserEmail: string) => {

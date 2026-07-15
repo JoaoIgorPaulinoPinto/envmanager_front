@@ -451,12 +451,31 @@
   transform: scale(0.96);
 }
 
+
 .cellInline {
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
+.lastColumnCell {
+  display: flex;
+  justify-content: center;
+  color:rgb(206, 14, 14);
+}
+.lastColumnCell button {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    transform 0.18s ease;
+}
+.lastColumnCell button:hover {
+  color:rgb(255, 0, 0);
+  font-size:16px
+}
 .tableTextInput {
   color: var(--ink);
   background: transparent;

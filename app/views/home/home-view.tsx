@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Pencil, Plus, UserPlus } from "lucide-react";
+import { Download, Pencil, Plus, Trash, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import SideBar from "../components/side-bar";
@@ -233,10 +233,6 @@ export default function HomeView({ projectId }: HomeViewProps) {
   const handleSaveVariableEdit = async () => {
     if (!projectId || !editingVariable) return;
     const nextValue = variableDraft.trim();
-    if (!nextValue) {
-      setVariableEditError("Value cannot be empty.");
-      return;
-    }
 
     setVariableEditError("");
     setIsSavingVariableEdit(true);
@@ -480,7 +476,7 @@ export default function HomeView({ projectId }: HomeViewProps) {
               </thead>
               <tbody>
                 {project.variables?.map((variable) => (
-                  <tr key={variable.id}>
+                  <tr key={variable.id} className={styles.tableRow}>
                     <td>
                       <div className={styles.cellInline}>
                         {variable.variable}
@@ -579,7 +575,21 @@ export default function HomeView({ projectId }: HomeViewProps) {
                               </button>
                             </>
                           )}
-                      </div>
+                    </div>
+                    </td>
+                    <td>
+                      <div className={styles.lastColumnCell}>
+                       <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingVariable(null);
+                                  setVariableDraft("");
+                                }}
+                                disabled={isSavingVariableEdit}
+                              >
+                                <Trash size={14}/>
+                        </button>
+                  </div>
                     </td>
                   </tr>
                 ))}
